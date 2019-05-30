@@ -3,25 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Webmap 201</title>
+    <!-- Adding reference to CSS folder -->
     <link rel="stylesheet" href="src/leaflet/leaflet.css">
+    <!-- Adding reference to Bootstrap folder -->
     <link rel="stylesheet" href="src/css/bootstrap-grid.css">
+    <link rel ="stylesheet"href="src/Leaflet.NavBar-master/Leaflet.NavBar.css">
+    <!-- Adding reference to leaflet folder -->
     <script src="src/leaflet/leaflet-src.js"></script>
+    <!-- Adding reference to Jquery folder -->
     <script src ="src/jquery-3.4.1.min.js"></script>
+    <!-- Script References -->
     <script src="js/leaflet-providers.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>    
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
-
+    <script src="js/Leaflet.NavBar.js"></script>
+    
+    <!--starting the style here, eventually be moved to CSS folder; giving a ref a-->
     <style>
         #mapdiv{
             height:100vh;
 
         }
+        #header {
+            background-color:floralwhite;
+            padding: 15px;
+            text-align: center;
+        }
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+            }
+
+        li {
+  float: left;
+}
+
+        li a {
+          display: block;
+          padding: 8px;
+          background-color: #dddddd;
+        }
     </style>
 </head>
 <body>
-  <div id="side-bar" class="col-md-3"></div>
-   <div id ="mapdiv"class="col-md-9"></div>
+  <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" -->
+   
+    <div id ="header"><h1>Land Evaluation Tool</h1></div>
+    
+    <ul>
+        <li><a href =" https://chcs.uncg.edu/">CHCS UNC Greensboro</a></li>
+        <li><a href =" https://chcs.uncg.edu/">CHCS UNC Greensboro</a></li>
+        <li><a href =" https://chcs.uncg.edu/">CHCS UNC Greensboro</a></li>
+    </ul>
+    
+   <div id ="mapdiv"class="col-md-9"></div> <!-- defining my map id "mapdiv" -->
    <script>
+       <!-- Starting script-->
     var mymap = L.map('mapdiv').setView([36.08 , -79.79], 12);
        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -29,6 +68,7 @@
     id: 'mapbox.streets',
     accessToken: 'pk.eyJ1IjoibG11dGh1c3UiLCJhIjoiY2p3OXBibzh5MDFsMTRhb2Q0cG12YXRnZiJ9.M_KRg6FYsYxw76Bb1V7iaA'
 }).addTo(mymap);
+       L.control.navbar().addTo(mymap);
     </script>
     
 </body>

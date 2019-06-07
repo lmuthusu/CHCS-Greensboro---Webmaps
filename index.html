@@ -18,6 +18,16 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
     <script src="js/Leaflet.NavBar.js"></script>
     
+    <!-- Load Esri Leaflet from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"
+    integrity="sha512-tyPum7h2h36X52O2gz+Pe8z/3l+Y9S1yEUscbVs5r5aEY5dFmP1WWRY/WLLElnFHa+k1JBQZSCDGwEAnm2IxAQ=="
+    crossorigin=""></script>
+    
+    <!-- Load Esri Leaflet Renderers from CDN -->
+    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.6/dist/esri-leaflet-renderers.js"
+    integrity="sha512-mhpdD3igvv7A/84hueuHzV0NIKFHmp2IvWnY5tIdtAHkHF36yySdstEVI11JZCmSY4TCvOkgEoW+zcV/rUfo0A=="
+    crossorigin=""></script>
+    
     <!--starting the style here, eventually be moved to CSS folder; giving a ref a-->
     <style>
         #mapdiv{
@@ -79,7 +89,12 @@
     id: 'mapbox.streets',
     accessToken: 'pk.eyJ1IjoibG11dGh1c3UiLCJhIjoiY2p3OXBibzh5MDFsMTRhb2Q0cG12YXRnZiJ9.M_KRg6FYsYxw76Bb1V7iaA'
 }).addTo(mymap);
+       L.esri.basemapLayer("Streets").addTo(mymap);
+
        L.control.navbar().addTo(mymap);
+       L.esri.dynamicMapLayer('http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/',{
+  opacity : 1
+}).addTo(mymap);
     </script>
     
 </body>

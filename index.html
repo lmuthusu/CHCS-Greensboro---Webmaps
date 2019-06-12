@@ -90,11 +90,12 @@
     accessToken: 'pk.eyJ1IjoibG11dGh1c3UiLCJhIjoiY2p3OXBibzh5MDFsMTRhb2Q0cG12YXRnZiJ9.M_KRg6FYsYxw76Bb1V7iaA'
 }).addTo(mymap);
        L.esri.basemapLayer("Streets").addTo(mymap);
-
        L.control.navbar().addTo(mymap);
-       L.esri.dynamicMapLayer('http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/',{
-  opacity : 1
-}).addTo(mymap);
+       var url = "http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/";
+       L.esri.dynamicMapLayer({
+       url: url,
+       opacity : 1,
+    }).addTo(mymap);
     </script>
     
 </body>

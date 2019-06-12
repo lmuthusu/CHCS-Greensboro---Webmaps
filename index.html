@@ -74,28 +74,45 @@
     <div id ="header">
     <h1 class="center">Land Evaluation Tool</h1>
    
-    
+        <!-- Including the tabs-->
         <a href =" https://chcs.uncg.edu/about/">About Us</a>
         <a href =" https://chcs.uncg.edu/">CHCS UNC Greensboro</a>
      </div>
     
-   <div id ="mapdiv"class="col-md-9"></div> <!-- defining my map id "mapdiv" -->
+    <!-- defining my map id "mapdiv" -->
+   <div id ="mapdiv"class="col-md-9"></div> 
    <script>
        <!-- Starting script-->
-    var mymap = L.map('mapdiv').setView([36.08 , -79.79], 12);
+    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =12, maxZoom= 18);
+       
+       <! -- Inclding the tile layer -->
        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
     id: 'mapbox.streets',
     accessToken: 'pk.eyJ1IjoibG11dGh1c3UiLCJhIjoiY2p3OXBibzh5MDFsMTRhb2Q0cG12YXRnZiJ9.M_KRg6FYsYxw76Bb1V7iaA'
 }).addTo(mymap);
+       
+       <! -- Adding the ESRI base map --> 
        L.esri.basemapLayer("Streets").addTo(mymap);
+       
+       <! -- Adding the control Nav bar -->
        L.control.navbar().addTo(mymap);
-       var url = "http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/";
+       
+       <!-- Adding dynamic layer, parcel file -->
+       var url_parcel = "http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/";
        L.esri.dynamicMapLayer({
-       url: url,
+       url: url_parcel,
        opacity : 1,
     }).addTo(mymap);
+       
+       <!-- Adding dynamic layer for building data -->
+       var url_building = "http://gis.guilfordcountync.gov/arcgis/rest/services/Addressing/GC_Bldg_Footprints/MapServer/";
+       L.esri.dynamicMapLayer({
+        url: url_building,
+       opacity : 1,
+    }).addTo(mymap);
+       
     </script>
     
 </body>

@@ -34,6 +34,8 @@
             height:100vh;
 
         }
+        
+        
         #header {
             background-color:#0f2044;
             padding: 5px;
@@ -54,8 +56,8 @@
             }
 
         li {
-  float: right;
-}
+            float: right;
+            }
 
         li a {
 
@@ -64,6 +66,7 @@
             color: #ffb71b
             
         }
+        
         a{
             display:inline-block;
             padding: 8px;
@@ -71,11 +74,40 @@
            
         }
         
+
+#query {
+    position: absolute;
+    top: 140px;
+    right: 10px;
+    z-index: 1000;
+    background: #a59c87;
+    width: auto;
+    padding: 1em;
+  }
+
+  #query select {
+    font-size: 16px;
+  }
+        
     </style>
 </head>
 <body>
   <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" -->
-   
+    <div id="query" class="leaflet-bar">
+    <label>
+  Propertytype
+  <select id="Property_Type">
+    <!-- make sure to encase string values in single quotes for valid sql -->
+    <option value='1=1'>Any</option>
+    <option value="Property_Type='COMM'">COMMERCIAL</option>
+    <option value="Property_Type='RETAIL'">RETAIL</option>
+    <option value="Property_Type='RESIDENTIAL'">RESIDENTIAL</option>
+    <option value="Property_Type='GOV OWNED'">GOVT OWNED</option>
+    <option value="Property_Type='DEVELOPMT RESTRICTED'">DEVELOPMENT RESTRICTED</option> 
+    <option value="Property_Type='OFFICE'">OFFICE</option> 
+  </select>
+        
+</label></div>
     <div id ="header">
     <h1 class="center">Land Evaluation Tool</h1>
    
@@ -105,12 +137,7 @@
 
        L.control.navbar().addTo(mymap);
        
-       <!-- Adding dynamic layer, parcel file -->
-       var url_parcel = "http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/";
-       L.esri.dynamicMapLayer({
-       url: url_parcel,
-       opacity : 1,
-    }).addTo(mymap);
+
        
       const location_address= L.esri.featureLayer({
     url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0'
@@ -126,6 +153,15 @@
         url: url_building,
        opacity : 1,
     }).addTo(mymap);
+       
+       
+       
+   var Propertytype = document.getElementById('Property_Type');
+       Propertytype.addEventListener('change', function(){
+    stops.setWhere(Propertytype.value);
+  });
+       
+       
     </script>
     
 </body>

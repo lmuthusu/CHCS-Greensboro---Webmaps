@@ -35,11 +35,15 @@
 
         }
         #header {
-            background-color:#62A2EA;
+            background-color:#0f2044;
             padding: 5px;
             text-align:center;
             
             
+        }
+        
+        h1 {
+            color: #e5e6e4;
         }
         
        ul {
@@ -57,6 +61,7 @@
 
           padding: 8px;
           background-color:#5F8E78 ;
+            color: #ffb71b
             
         }
         a{
@@ -84,7 +89,7 @@
      
     var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =12, maxZoom= 18);
        
-       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
     id: 'mapbox.streets',
@@ -92,8 +97,11 @@
 }).addTo(mymap);
        
       
-       L.esri.basemapLayer("Streets").addTo(mymap);
+      L.esri.basemapLayer("Streets").addTo(mymap);
+
        
+
+
 
        L.control.navbar().addTo(mymap);
        
@@ -109,7 +117,7 @@
 }).addTo(mymap);
        
        location_address.bindPopup(function(evt) {
-            return L.Util.template('<h3>{PROPERTY_DESCR}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is {Owner} and is built in the year {YEAR_BUILT}', evt.feature.properties);
+            return L.Util.template('<h3>{Property_Type}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is {Owner} and is built in the year {YEAR_BUILT}', evt.feature.properties);
        });
       
        

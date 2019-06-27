@@ -99,12 +99,10 @@
   <select id="Property_Type">
     <!-- make sure to encase string values in single quotes for valid sql -->
     <option value='1=1'>Any</option>
-    <option value="Property_Type='COMM'">COMMERCIAL</option>
-    <option value="Property_Type='RETAIL'">RETAIL</option>
     <option value="Property_Type='RESIDENTIAL'">RESIDENTIAL</option>
     <option value="Property_Type='GOV OWNED'">GOVT OWNED</option>
-    <option value="Property_Type='DEVELOPMT RESTRICTED'">DEVELOPMENT RESTRICTED</option> 
-    <option value="Property_Type='OFFICE'">OFFICE</option> 
+    <option value="Property_Type='VACANT'">VACANT</option> 
+    <option value="Property_Type='OFFICE'">OTHERS</option> 
   </select>
         
 </label></div>
@@ -139,9 +137,32 @@
        
 
        
-      const location_address= L.esri.featureLayer({
-    url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0'
+      var location_address = L.esri.featureLayer({
+    url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
+           style: function (feature) {
+          if(feature.properties.Property_Type === 'RESIDENTIAL'){
+          return {color:'#226666',weight:2,fillColor:'#226666',fill:true,fillOpacity :0.3};
+          }
+          else if (feature.properties.Property_Type === 'GOV OWNED'){
+          return {color:'#AA3939',weight:2,fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
+          }
+          else if (feature.properties.Property_Type === 'INSTITUTIONAL'){
+          return {color:'#C5EE56',weight:2,fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
+          }
+          else if (feature.properties.Property_Type === 'VACANT'){
+          return {color:'#FF0000',weight:2,fillColor:'#FF0000',fill:true,fillOpacity :0.3};    
+          }
+           else{
+            return {color :'#AA7A39', weight:2,fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
+             }
+      }
 }).addTo(mymap);
+       
+       var prop = document.getElementById('Property_Type');
+       
+       Property_Type.addEventListener('change',function(){
+           location_address.setWhere(Property_Type.value);
+       })
        
        location_address.bindPopup(function(evt) {
             return L.Util.template('<h3>{Property_Type}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is {Owner} and is built in the year {YEAR_BUILT}', evt.feature.properties);

@@ -8,6 +8,7 @@
     <!-- Adding reference to Bootstrap folder -->
     <link rel="stylesheet" href="src/css/bootstrap-grid.css">
     <link rel ="stylesheet"href="src/Leaflet.NavBar-master/Leaflet.NavBar.css">
+    <link rel ="stylesheet"href="src/leaflet-search-master/src/leaflet-search.css">
     <!-- Adding reference to leaflet folder -->
     <script src="src/leaflet/leaflet-src.js"></script>
     <!-- Adding reference to Jquery folder -->
@@ -17,6 +18,7 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>    
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
     <script src="js/Leaflet.NavBar.js"></script>
+    <script src ="src/leaflet-search-master/src/leaflet-search.js"></script>
     
     <!-- Load Esri Leaflet from CDN -->
     <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"
@@ -26,6 +28,14 @@
     <!-- Load Esri Leaflet Renderers from CDN -->
     <script src="https://unpkg.com/esri-leaflet-renderers@2.0.6/dist/esri-leaflet-renderers.js"
     integrity="sha512-mhpdD3igvv7A/84hueuHzV0NIKFHmp2IvWnY5tIdtAHkHF36yySdstEVI11JZCmSY4TCvOkgEoW+zcV/rUfo0A=="
+    crossorigin=""></script>
+    
+    <!-- Load Esri Leaflet Geocoder from CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.14/dist/esri-leaflet-geocoder.css"
+    integrity="sha512-v5YmWLm8KqAAmg5808pETiccEohtt8rPVMGQ1jA6jqkWVydV5Cuz3nJ9fQ7ittSxvuqsvI9RSGfVoKPaAJZ/AQ=="
+    crossorigin="">
+  <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.14/dist/esri-leaflet-geocoder.js"
+    integrity="sha512-uK5jVwR81KVTGe8KpJa1QIN4n60TsSV8+DPbL5wWlYQvb0/nYNgSOg9dZG6ViQhwx/gaMszuWllTemL+K+IXjg=="
     crossorigin=""></script>
     
     <!--starting the style here, eventually be moved to CSS folder; giving a ref a-->
@@ -125,7 +135,7 @@
    <div id ="mapdiv"class="col-md-9"></div> 
    <script>
      
-    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =12, maxZoom= 18);
+    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =12, maxZoom= 20);
        
      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -134,11 +144,19 @@
 	maxZoom: 20,
 	ext: 'png'
 }).addTo(mymap);
+     
+       
+
+       
+        var url_building = "http://gis.guilfordcountync.gov/arcgis/rest/services/Addressing/GC_Bldg_Footprints/MapServer/";
+       L.esri.dynamicMapLayer({
+        url: url_building,
+       opacity : 1,
+    }).addTo(mymap);
        
 
        L.control.navbar().addTo(mymap);
        
-
        
     
         var location_address = L.esri.featureLayer({
@@ -161,41 +179,58 @@
              }
       }
 });
-
-         mymap.on('zoomend', function() {
-    if (mymap.getZoom() <14){
-        mymap.removeLayer(location_address);
-    }
-             else {
-                 mymap.addLayer(location_address);
-                
-             }
-         });
-          
-       
-       var prop = document.getElementById('Property_Type');
-       
-       Property_Type.addEventListener('change',function(){
-           location_address.setWhere(Property_Type.value);
-       })
-       
+              
        location_address.bindPopup(function(evt) {
             return L.Util.template('<h3>{Property_Type}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is {Owner} and is built in the year {YEAR_BUILT}', evt.feature.properties);
        });
-      
-       
-       var url_building = "http://gis.guilfordcountync.gov/arcgis/rest/services/Addressing/GC_Bldg_Footprints/MapServer/";
-       L.esri.dynamicMapLayer({
-        url: url_building,
-       opacity : 1,
-    }).addTo(mymap);
-       
-       
+            
        
    var Propertytype = document.getElementById('Property_Type');
        Propertytype.addEventListener('change', function(){
     location_address.setWhere(Property_Type.value);
   });
+       
+    var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+
+       //... adding data in searchLayer ...
+    var searchControl = L.esri.Geocoding.geosearch({
+    providers: [
+      arcgisOnline,
+      L.esri.Geocoding.featureLayerProvider({
+           url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
+          searchFields: ['StreetName','ZIP'],
+            bufferRadius: 5000,
+          zoomToResult: 17,
+        formatSuggestion: function(feature){
+          return feature.properties.StreetName+ ' - ' + feature.properties.ZIP;
+        }
+      })
+    ]
+  }).addTo(mymap);
+       
+   var highways =L.esri.featureLayer({
+        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10'
+
+    }).addTo(mymap);
+
+    var boundary =L.esri.featureLayer({
+        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/40'
+
+    }).addTo(mymap);
+       
+    mymap.on('zoomend', function() {
+    if ( mymap.getZoom() < 16){
+        mymap.removeLayer(location_address);
+          
+    }
+    else {
+        mymap.addLayer(location_address); 
+              }   
+             
+    });
+       
+
+    //searchLayer is a L.LayerGroup contains searched markers
        
        
     </script>

@@ -109,17 +109,7 @@
 </head>
 <body>
   <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" -->
-    <div id="query" class="leaflet-bar">
-    <label>
-  Propertytype
-  <select id="Property_Type">
-    <!-- make sure to encase string values in single quotes for valid sql -->
-    <option value='1=1'>Any</option>
-    <option value="Property_Type='RESIDENTIAL'">RESIDENTIAL</option>
-    <option value="Property_Type='GOV OWNED'">GOVT OWNED</option>
-    <option value="Property_Type='VACANT'">VACANT</option> 
-    <option value="Property_Type='OFFICE'">OTHERS</option> 
-  </select>
+
         
 </label></div>
     <div id ="header">
@@ -131,11 +121,26 @@
         <a href =" https://uncg.edu/">UNC Greensboro</a>
         <a href="https://github.com/lmuthusu/Webmaps---Summer-2019/" align = "right">Source Code</a>
      </div>
+     
+     
     
    <div id ="mapdiv"class="col-md-9"></div> 
+   
+   <div id="query" class="leaflet-bar">
+    <label>
+  Propertytype
+  <select id="LAND_CLASS">
+    <!-- make sure to encase string values in single quotes for valid sql -->
+    <option value='1=1'>Any</option>
+    <option value="LAND_CLASS='RESIDENTIAL'">RESIDENTIAL</option>
+    <option value="LAND_CLASS='GOV OWNED'">GOVT OWNED</option>
+    <option value="LAND_CLASS='VACANT'">VACANT</option> 
+    <option value="LAND_CLASS='OFFICE'">OTHERS</option> 
+  </select>
+  
    <script>
      
-    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =12, maxZoom= 20);
+    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =10, maxZoom= 20);
        
      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -144,51 +149,83 @@
 	maxZoom: 20,
 	ext: 'png'
 }).addTo(mymap);
-     
-       
-
-       
-        var url_building = "http://gis.guilfordcountync.gov/arcgis/rest/services/Addressing/GC_Bldg_Footprints/MapServer/";
-       L.esri.dynamicMapLayer({
-        url: url_building,
-       opacity : 1,
-    }).addTo(mymap);
        
 
        L.control.navbar().addTo(mymap);
+       var res_area = 0;
+       var gov_area = 0;
+       var ins_area = 0;
+       var vac_area =0 ;
+       var other_area =0;
+       var total_area = 0;
        
        
-    
-        var location_address = L.esri.featureLayer({
+  var location_address = L.esri.featureLayer({
     url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
-           style: function (feature) {
-          if(feature.properties.Property_Type === 'RESIDENTIAL'){
-          return {color:'#226666',weight:2,fillColor:'#226666',fill:true,fillOpacity :0.3};
+    
+        simplifyFactor: 0.35,
+        precision: 5,
+        fields: [ 'LAND_CLASS', 'OBJECTID','LOCATION_ADDR','YEAR_BUILT','CALCULATED_ACRES','TOTAL_ACRES'],
+      
+        style: function (feature) {
+          if(feature.properties.LAND_CLASS === 'RESIDENTIAL'){
+              //res_area = res_area + feature.properties.length;
+              //console.log(res_area);
+          return {fillColor:'#226666',fill:true,fillOpacity :0.3};
           }
-          else if (feature.properties.Property_Type === 'GOV OWNED'){
-          return {color:'#AA3939',weight:2,fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
+          
+          else if (feature.properties.LAND_CLASS === 'GOV OWNED'){
+          return {fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type === 'INSTITUTIONAL'){
-          return {color:'#C5EE56',weight:2,fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
+          else if (feature.properties.LAND_CLASS === 'INSTITUTIONAL'){
+          return {fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type === 'VACANT'){
-          return {color:'#FF0000',weight:2,fillColor:'#FF0000',fill:true,fillOpacity :0.3};    
+          else if (feature.properties.LAND_CLASS === 'VACANT'){
+          return {fillColor:'#FF0000',fill:true,fillOpacity :0.3};    
           }
            else{
-            return {color :'#AA7A39', weight:2,fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
-             }
-      }
-});
-              
-       location_address.bindPopup(function(evt) {
-            return L.Util.template('<h3>{Property_Type}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is {Owner} and is built in the year {YEAR_BUILT}', evt.feature.properties);
-       });
-            
+            return {fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
+           }
+        },
+      
+      minZoom :15,
+      maxZoom: 18
+      
+       }).addTo(mymap);
        
-   var Propertytype = document.getElementById('Property_Type');
-       Propertytype.addEventListener('change', function(){
-    location_address.setWhere(Property_Type.value);
+       
+       location_address.on('load', iterateFeatures);
+       function iterateFeatures () {
+           total_area =0;
+           location_address.eachFeature(function(layer) {
+               //var attrs = Object.keys(layer.feature.properties)
+               console.log(Object.keys(layer.feature.properties));
+               total_area = total_area + layer.feature.properties.CALCULATED_ACRES ;
+                console.log(total_area);
+                   
   });
+           console.log(total_area);
+}
+       
+
+              
+       
+       
+    /* mymap.on('zoomend', function() {
+    if ( mymap.getZoom() > 15){
+        mymap.addLayer(location_address);  
+    }
+                 });  */ 
+       
+    location_address.bindPopup(function(evt) {
+            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is  and is built in the year {YEAR_BUILT} and calculated acres is {TOTAL_ACRES}', evt.feature.properties);
+       });
+
+   var Propertytype = document.getElementById('LAND_CLASS');
+       Propertytype.addEventListener('change', function(){
+    location_address.setWhere(LAND_CLASS.value);
+  });
+
        
     var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
 
@@ -198,36 +235,23 @@
       arcgisOnline,
       L.esri.Geocoding.featureLayerProvider({
            url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
-          searchFields: ['StreetName','ZIP'],
-            bufferRadius: 5000,
+          searchFields: ['Street','ZIP'],
+            bufferRadius: 15000,
           zoomToResult: 17,
         formatSuggestion: function(feature){
-          return feature.properties.StreetName+ ' - ' + feature.properties.ZIP;
+          return feature.properties.Street+ ' - ' + feature.properties.ZIP;
         }
       })
     ]
   }).addTo(mymap);
        
-   var highways =L.esri.featureLayer({
-        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10'
+   /*var highways =L.esri.featureLayer({
+        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
+        simplifyFactor: 0.35,
 
-    }).addTo(mymap);
-
-    var boundary =L.esri.featureLayer({
-        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/40'
-
-    }).addTo(mymap);
+    }).addTo(mymap);*/
        
-    mymap.on('zoomend', function() {
-    if ( mymap.getZoom() < 16){
-        mymap.removeLayer(location_address);
-          
-    }
-    else {
-        mymap.addLayer(location_address); 
-              }   
-             
-    });
+
        
 
     //searchLayer is a L.LayerGroup contains searched markers

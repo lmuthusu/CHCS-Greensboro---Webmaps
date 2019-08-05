@@ -196,15 +196,17 @@
        
        location_address.on('load', iterateFeatures);
        function iterateFeatures () {
-           total_area =0;
+           total_area = 0;
            location_address.eachFeature(function(layer) {
+               console.log(total_area);
                //var attrs = Object.keys(layer.feature.properties)
                console.log(Object.keys(layer.feature.properties));
                total_area = total_area + layer.feature.properties.CALCULATED_ACRES ;
                 console.log(total_area);
                    
   });
-           console.log(total_area);
+           total_area =0;
+           
 }
        
 
@@ -218,7 +220,7 @@
                  });  */ 
        
     location_address.bindPopup(function(evt) {
-            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is  and is built in the year {YEAR_BUILT} and calculated acres is {TOTAL_ACRES}', evt.feature.properties);
+            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is  and is built in the year {YEAR_BUILT} and calculated acres ({CALCULATED_ACRES}) is {TOTAL_ACRES}', evt.feature.properties);
        });
 
    var Propertytype = document.getElementById('LAND_CLASS');

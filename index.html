@@ -26,7 +26,7 @@
     crossorigin=""></script>
     
     <!-- Load Esri Leaflet Renderers from CDN -->
-    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.6/dist/esri-leaflet-renderers.js"
+    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.8/dist/esri-leaflet-renderers.js"
     integrity="sha512-mhpdD3igvv7A/84hueuHzV0NIKFHmp2IvWnY5tIdtAHkHF36yySdstEVI11JZCmSY4TCvOkgEoW+zcV/rUfo0A=="
     crossorigin=""></script>
     
@@ -36,8 +36,11 @@
     crossorigin="">
   <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.14/dist/esri-leaflet-geocoder.js"
     integrity="sha512-uK5jVwR81KVTGe8KpJa1QIN4n60TsSV8+DPbL5wWlYQvb0/nYNgSOg9dZG6ViQhwx/gaMszuWllTemL+K+IXjg=="
-    crossorigin=""></script>
-    
+    crossorigin="">    
+    </script>
+
+
+        
     <!--starting the style here, eventually be moved to CSS folder; giving a ref a-->
     <style>
         #mapdiv{
@@ -96,19 +99,45 @@
     top: 140px;
     right: 10px;
     z-index: 1000;
-    background: #a59c87;
-    width: auto;
+    background: #0f2044;
+    width: 300px;
     padding: 1em;
+    color: aliceblue;
+    opacity: 0.8;
   }
 
   #query select {
     font-size: 16px;
+    color:#0f2044;
+    z-index: 1000;
+    background: #0f2044;
+    width: auto;
+    padding: 1em;
+    color: aliceblue;
+    opacity: 0.8;
+    
   }
+        
+        
+
+        #calc{
+            position: absolute;
+            top:250px;
+            right:10px;
+            z-index: 1000;
+            background: #0f2044;
+            width: 300px;
+            height: 400px;
+            padding: 1em;
+            color: aliceblue;
+            opacity: 0.8;
+            
+        }
         
     </style>
 </head>
 <body>
-  <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" -->
+ <!-- <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" --> 
 
         
 </label></div>
@@ -122,13 +151,16 @@
         <a href="https://github.com/lmuthusu/Webmaps---Summer-2019/" align = "right">Source Code</a>
      </div>
      
-     
+
+   <div id ="calc"class="col-md-3"> 
+   <label> LOT CALCULATOR </label>
+   </div>
     
-   <div id ="mapdiv"class="col-md-9"></div> 
+   <div id ="mapdiv"class="col-md-12"></div> 
    
    <div id="query" class="leaflet-bar">
     <label>
-  Propertytype
+  Land Type
   <select id="LAND_CLASS">
     <!-- make sure to encase string values in single quotes for valid sql -->
     <option value='1=1'>Any</option>
@@ -160,8 +192,11 @@
        var total_area = 0;
        
        
+       
+       
+       
   var location_address = L.esri.featureLayer({
-    url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
+    url: 'https://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
     
         simplifyFactor: 0.35,
         precision: 5,
@@ -189,9 +224,12 @@
         },
       
       minZoom :15,
-      maxZoom: 18
+      maxZoom: 20
       
        }).addTo(mymap);
+       
+           
+        
        
        
        location_address.on('load', iterateFeatures);
@@ -203,9 +241,11 @@
                console.log(Object.keys(layer.feature.properties));
                total_area = total_area + layer.feature.properties.CALCULATED_ACRES ;
                 console.log(total_area);
+               
+            
                    
   });
-           total_area =0;
+  total_area = 0;         
            
 }
        
@@ -236,7 +276,7 @@
     providers: [
       arcgisOnline,
       L.esri.Geocoding.featureLayerProvider({
-           url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
+           url:"https://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
           searchFields: ['Street','ZIP'],
             bufferRadius: 15000,
           zoomToResult: 17,
@@ -246,18 +286,21 @@
       })
     ]
   }).addTo(mymap);
+        
        
    /*var highways =L.esri.featureLayer({
-        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
+        url:'http://gis.guilfordcountync.g
+        ov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
         simplifyFactor: 0.35,
+        minZoom :10,
+        maxZoom: 15
 
-    }).addTo(mymap);*/
+    }).addTo(mymap); */
        
 
        
 
     //searchLayer is a L.LayerGroup contains searched markers
-       
        
     </script>
     

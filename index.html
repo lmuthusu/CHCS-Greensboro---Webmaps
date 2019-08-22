@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    
     <title>Webmap 201</title>
-    <!-- Adding reference to CSS folder -->
+      <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <!-- Adding reference to CSS folder -->
     <link rel="stylesheet" href="src/leaflet/leaflet.css">
     <!-- Adding reference to Bootstrap folder -->
     <link rel="stylesheet" href="src/css/bootstrap-grid.css">
@@ -26,9 +28,7 @@
     crossorigin=""></script>
     
     <!-- Load Esri Leaflet Renderers from CDN -->
-    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.8/dist/esri-leaflet-renderers.js"
-    integrity="sha512-mhpdD3igvv7A/84hueuHzV0NIKFHmp2IvWnY5tIdtAHkHF36yySdstEVI11JZCmSY4TCvOkgEoW+zcV/rUfo0A=="
-    crossorigin=""></script>
+    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.8/dist/esri-leaflet-renderers.js"></script>
     
     <!-- Load Esri Leaflet Geocoder from CDN -->
   <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.14/dist/esri-leaflet-geocoder.css"
@@ -38,7 +38,12 @@
     integrity="sha512-uK5jVwR81KVTGe8KpJa1QIN4n60TsSV8+DPbL5wWlYQvb0/nYNgSOg9dZG6ViQhwx/gaMszuWllTemL+K+IXjg=="
     crossorigin="">    
     </script>
+    <!-- Load Esri Leaflet Renderers from CDN --> <!-- Load Esri Leaflet from CDN -->
 
+ 
+    <!-- Load Esri Leaflet Renderers -->
+    <!-- This will hook into Esri Leaflet to get renderer info when adding a feature layer -->
+    > 
 
         
     <!--starting the style here, eventually be moved to CSS folder; giving a ref a-->
@@ -95,8 +100,8 @@
   
 
 #query {
-    position: absolute;
-    top: 140px;
+    position: fixed;
+    bottom: 420px;
     right: 10px;
     z-index: 1000;
     background: #0f2044;
@@ -121,8 +126,8 @@
         
 
         #calc{
-            position: absolute;
-            top:250px;
+            position: fixed;
+            bottom: 10px;
             right:10px;
             z-index: 1000;
             background: #0f2044;
@@ -136,13 +141,13 @@
         
     </style>
 </head>
+    
 <body>
  <!-- <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" --> 
+      
 
-        
-</label></div>
     <div id ="header">
-        <img src ="src/images/uncgreensboro_h_tag_3-color-reversed.png" align="left"alt="logo" />
+        <img src ="src/images/uncgreensboro_chcs_h_3-color-reversed.png" align="left"alt="logo" />
     <h1 class="center">Land Evaluation Tool</h1>
    
         <!-- Including the tabs-->
@@ -152,71 +157,103 @@
      </div>
      
 
-   <div id ="calc"class="col-md-3"> 
-   <label> LOT CALCULATOR </label>
-   </div>
+
     
    <div id ="mapdiv"class="col-md-12"></div> 
    
    <div id="query" class="leaflet-bar">
     <label>
   Land Type
-  <select id="LAND_CLASS">
+  <select id="eid">
     <!-- make sure to encase string values in single quotes for valid sql -->
-    <option value='1=1'>Any</option>
-    <option value="LAND_CLASS='RESIDENTIAL'">RESIDENTIAL</option>
-    <option value="LAND_CLASS='GOV OWNED'">GOVT OWNED</option>
-    <option value="LAND_CLASS='VACANT'">VACANT</option> 
-    <option value="LAND_CLASS='OFFICE'">OTHERS</option> 
+    <option value= "1=1 ">Any</option>
+    <option value="Property_Type ='RESIDENTIAL'" >RESIDENTIAL</option>
+    <option value="Property_Type='GOV OWNED'">GOVT OWNED</option>
+    <option value="Property_Type='VACANT'">VACANT</option> 
+    <option value="Property_Type='INSTITUTIONAL'">INSTITUTIONAL</option>
   </select>
-  
-   <script>
-     
-    var mymap = L.map('mapdiv').setView([36.08 , -79.79], minZoom =10, maxZoom= 20);
+  </label></div>
+    
+    
+    
+  <div id ="calc" class="leaflet-bar"> 
+   <label> LOT CALCULATOR (in acres) </label>
+      <br><br>Total Lot Size : <div id="selectedFeatures"></div>
+       <br><br> Residential  : <div id="residential"></div>
+       <br><br> Governement owned  : <div id="gov"></div>
        
-     L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+       <br><br> Other area :<div id="oth"></div>
+       <br><br> Vacant area :<div id ="vac"></div>
+       
+</div>
+    
+   <script type ="text/javascript">
+       
+       mapLink = 
+            '<a href="http://www.esri.com/">Esri</a>';
+        wholink = 
+            'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+       
+       var stamen =      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 	subdomains: 'abcd',
-	minZoom: 0,
-	maxZoom: 20,
 	ext: 'png'
-}).addTo(mymap);
-       
+}),
+           es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; '+mapLink+', '+wholink});
+     
+    var mymap = L.map('mapdiv',{ 
+        center :[36.08 , -79.79],
+        zoom : 13,
+        layers : [stamen, es_w]
+    });
+       var total_area;
+       var baseMaps = {
+           "Stamen toner": stamen,
+           "ESRI World": es_w
+            };
+
+       var cont = L.control.layers(baseMaps).addTo(mymap);
 
        L.control.navbar().addTo(mymap);
-       var res_area = 0;
-       var gov_area = 0;
-       var ins_area = 0;
-       var vac_area =0 ;
-       var other_area =0;
-       var total_area = 0;
        
+       L.control.scale().addTo(mymap);
        
-       
-       
+
+            
        
   var location_address = L.esri.featureLayer({
-    url: 'https://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
+    url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
     
         simplifyFactor: 0.35,
         precision: 5,
-        fields: [ 'LAND_CLASS', 'OBJECTID','LOCATION_ADDR','YEAR_BUILT','CALCULATED_ACRES','TOTAL_ACRES'],
+        fields: ['OBJECTID_1','Property_Type','LOCATION_ADDR','YEAR_BUILT','Lot_Size','REID'],
       
         style: function (feature) {
-          if(feature.properties.LAND_CLASS === 'RESIDENTIAL'){
-              //res_area = res_area + feature.properties.length;
-              //console.log(res_area);
+          if(feature.properties.Property_Type == 'RESIDENTIAL'
+             /*|feature.properties.Property_Type == 'TOWNHOUSE'|feature.properties.Property_Type == 'APART'|feature.properties.Property_Type == 'IND'|feature.properties.Property_Type == 'CONDO'|feature.properties.Property_Type =="MULTI-FAMILY<4"*/ ){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};
           }
+         /* else if (feature.properties.Property_Type == 'TOWNHOUSE'){
+          return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
+          }
+          else if (feature.properties.Property_Type == 'APART'){
+          return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
+          }
+          else if (feature.properties.Property_Type == 'IND'){
+          return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
+          }
+          else if (feature.properties.Property_Type == 'CONDO'){
+          return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
+          }*/
           
-          else if (feature.properties.LAND_CLASS === 'GOV OWNED'){
+          else if (feature.properties.Property_Type == 'GOV OWNED'){
           return {fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.LAND_CLASS === 'INSTITUTIONAL'){
+          else if (feature.properties.Property_Type == 'INSTITUTIONAL'){
           return {fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.LAND_CLASS === 'VACANT'){
-          return {fillColor:'#FF0000',fill:true,fillOpacity :0.3};    
+          else if (feature.properties.Property_Type == 'VACANT'){
+          return {fillColor:'#FF0000',fill:true,fillOpacity :0.8};    
           }
            else{
             return {fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
@@ -224,48 +261,98 @@
         },
       
       minZoom :15,
-      maxZoom: 20
+      maxZoom: 30
       
        }).addTo(mymap);
        
-           
+     
+       
+    var pane = document.getElementById('selectedFeatures');
+    var res = document.getElementById('residential');
+    var govt = document.getElementById('gov');
+    var vact = document.getElementById('vac');
+    var others = document.getElementById('oth');
         
        
-       
-       location_address.on('load', iterateFeatures);
-       function iterateFeatures () {
+    mymap.on('zoom move',iterateFeatures);
+    location_address.on('load', iterateFeatures);
+   
+    
+    function iterateFeatures () {
+           res_area = 0;
            total_area = 0;
-           location_address.eachFeature(function(layer) {
+           vac_area = 0;
+           ins_area = 0;
+           total_area=0;
+           gov_area = 0;
+           other_area = 0;
+           location_address.eachActiveFeature(function(layer) {
                console.log(total_area);
                //var attrs = Object.keys(layer.feature.properties)
                console.log(Object.keys(layer.feature.properties));
-               total_area = total_area + layer.feature.properties.CALCULATED_ACRES ;
+               total_area = total_area + layer.feature.properties.Lot_Size;
+               
+               if(layer.feature.properties.Property_Type == "RESIDENTIAL" /*| layer.feature.properties.Property_Type == "TOWNHOUSE"|layer.feature.properties.Property_Type == "CONDO"|layer.feature.properties.Property_Type == "IND"|layer.feature.properties.Property_Type =="MULTI-FAMILY<4"||layer.feature.properties.Property_Type =="APART"*/)
+                   {
+                      res_area = res_area+ layer.feature.properties.Lot_Size;
+                       console.log("res",res_area)
+                   }
+              else if (layer.feature.properties.Property_Type =="GOV OWNED")
+                   {
+                      gov_area = gov_area+ layer.feature.properties.Lot_Size;
+                       console.log("gov",gov_area)
+                   }
+               
+               else if (layer.feature.properties.Property_Type =="INSTITUTIONAL")
+                   {
+                      ins_area = ins_area+ layer.feature.properties.Lot_Size;
+                       console.log("insti",ins_area)
+                   }
+              else if (layer.feature.properties.Property_Type =="VACANT")
+                   {
+                      vac_area = vac_area+ layer.feature.properties.Lot_Size;
+                       console.log("vacant",vac_area)
+                   }
+               else
+                   {
+                      other_area = other_area + layer.feature.properties.Lot_Size;
+                       console.log("others",other_area)
+                   }
+               
                 console.log(total_area);
+
+
+              return total_area;  
+               
                
             
                    
   });
-  total_area = 0;         
-           
-}
-       
 
-              
+ pane.innerHTML = total_area.toFixed(1);
+ res.innerHTML  = res_area.toFixed(1);
+ govt.innerHTML = gov_area.toFixed(1);
+ others.innerHTML = other_area.toFixed(1);
+ vact.innerHTML = vac_area.toFixed(1);
+} 
+    
+    
+  
        
        
-    /* mymap.on('zoomend', function() {
+     mymap.on('zoomend', function() {
     if ( mymap.getZoom() > 15){
         mymap.addLayer(location_address);  
     }
-                 });  */ 
+                 }); 
        
     location_address.bindPopup(function(evt) {
-            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {LOCATION_ADDR} and its owner is  and is built in the year {YEAR_BUILT} and calculated acres ({CALCULATED_ACRES}) is {TOTAL_ACRES}', evt.feature.properties);
+            return L.Util.template('<h3>{Property_Type}</h3><hr /><p>This property is located at {LOCATION_ADDR} and is built in the year {YEAR_BUILT}', evt.feature.properties);
        });
 
-   var Propertytype = document.getElementById('LAND_CLASS');
+   var Propertytype = document.getElementById('eid');
        Propertytype.addEventListener('change', function(){
-    location_address.setWhere(LAND_CLASS.value);
+    location_address.setWhere(eid.value);
   });
 
        
@@ -276,33 +363,34 @@
     providers: [
       arcgisOnline,
       L.esri.Geocoding.featureLayerProvider({
-           url:"https://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
-          searchFields: ['Street','ZIP'],
+           url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
+          searchFields: ['StreetName'],
             bufferRadius: 15000,
           zoomToResult: 17,
         formatSuggestion: function(feature){
-          return feature.properties.Street+ ' - ' + feature.properties.ZIP;
+          return feature.properties.StreetName;
         }
       })
     ]
-  }).addTo(mymap);
+  }).addTo(mymap); 
         
        
-   /*var highways =L.esri.featureLayer({
-        url:'http://gis.guilfordcountync.g
-        ov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
-        simplifyFactor: 0.35,
+  /*var highways =L.esri.featureLayer({
+        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
+        simplifyFactor: 0.05,
         minZoom :10,
-        maxZoom: 15
+        maxZoom: 13,
 
-    }).addTo(mymap); */
-       
+    }).addTo(mymap); */      
 
        
 
     //searchLayer is a L.LayerGroup contains searched markers
+    
        
     </script>
+    
+ 
     
 </body>
 </html>

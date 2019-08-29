@@ -143,12 +143,13 @@
 </head>
     
 <body>
- <!-- <div id="side-bar" class="col-md-3"></div> <!--defining sidebar id "side-bar" --> 
+ <!-- <div id="side-bar" class="col-md-3"></div>
+ <!--defining sidebar id "side-bar" --> 
       
 
     <div id ="header">
         <img src ="src/images/uncgreensboro_chcs_h_3-color-reversed.png" align="left"alt="logo" />
-    <h1 class="center">Land Evaluation Tool</h1>
+    <h1 class="center">Opportunity Finder</h1>
    
         <!-- Including the tabs-->
         <a href =" https://chcs.uncg.edu/about/">About Us</a>
@@ -157,25 +158,35 @@
      </div>
      
 
-
+<!-- Map Div Element -->
     
    <div id ="mapdiv"class="col-md-12"></div> 
    
+<!-- Leaflet Bar -->
+   
    <div id="query" class="leaflet-bar">
+   
+<!-- Dropdown List Box  eid-->
+   
     <label>
   Land Type
   <select id="eid">
     <!-- make sure to encase string values in single quotes for valid sql -->
     <option value= "1=1 ">Any</option>
     <option value="Property_Type ='RESIDENTIAL'" >RESIDENTIAL</option>
-    <option value="Property_Type='GOV OWNED'">GOVT OWNED</option>
-    <option value="Property_Type='VACANT'">VACANT</option> 
-    <option value="Property_Type='INSTITUTIONAL'">INSTITUTIONAL</option>
+    <option value="Property_Type ='TOWNHOUSE'" >TOWNHOUSE</option>
+    <option value="Property_Type ='APART'" >APARTMENT</option>
+    <option value ="Property_Type ='IND'">INDIVIDUAL PROPERTY</option>
+    <option value ="Property_Type ='CONDO'">CONDOMINIUM</option>
+    <option value="Property_Type ='MULTI-FAMILY<4'">MULTI FAMILY</option>
+    <option value="Property_Type ='GOV OWNED'">GOVT OWNED</option>
+    <option value="Property_Type ='VACANT'">VACANT</option> 
+    <option value="Property_Type ='INSTITUTIONAL'">INSTITUTIONAL</option>
   </select>
   </label></div>
     
-    
-    
+
+<!-- Leaflet Bar Contents calc -->      
   <div id ="calc" class="leaflet-bar"> 
    <label> LOT CALCULATOR (in acres) </label>
       <br><br>Total Lot Size : <div id="selectedFeatures"></div>
@@ -183,85 +194,102 @@
        <br><br> Governement owned  : <div id="gov"></div>
        
        <br><br> Other area :<div id="oth"></div>
-       <br><br> Vacant area :<div id ="vac"></div>
-       
+       <br><br> Vacant area :<div id ="vac"></div>     
 </div>
-    
+   
+<!-- Javascript part -->
+<!-- Elementdiv HTML gets passed here -->    
    <script type ="text/javascript">
        
-       mapLink = 
-            '<a href="http://www.esri.com/">Esri</a>';
-        wholink = 
-            'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+/* ESRI Link and contributors */  
+   mapLink = '<a href="http://www.esri.com/">Esri</a>';
+   wholink = 'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
        
-       var stamen =      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+       
+       
+       
+/* Defining the map elements */
+/* Stamen tile definition */
+var stamen =      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 	subdomains: 'abcd',
 	ext: 'png'
 }),
-           es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; '+mapLink+', '+wholink});
+/*ESRI World Tile definition*/
+es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; '+mapLink+', '+wholink});
+       
+       
      
+    /*Declare Map div*/
     var mymap = L.map('mapdiv',{ 
         center :[36.08 , -79.79],
         zoom : 13,
         layers : [stamen, es_w]
     });
+       
+       
+       
+    /* Declare variable tot_area*/
        var total_area;
+       
+       
+       
+    /*Declare basemaps to be stamen and ESRI*/
        var baseMaps = {
            "Stamen toner": stamen,
            "ESRI World": es_w
             };
-
+   /* Add the layers to mymap */
        var cont = L.control.layers(baseMaps).addTo(mymap);
 
+   /* Add navigation controls to mymap */
        L.control.navbar().addTo(mymap);
        
+    /* Add Scale to mymap */
        L.control.scale().addTo(mymap);
        
 
             
-       
+  /*Adding ESRI Feature layer from County website*/     
   var location_address = L.esri.featureLayer({
     url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Guilford_Parcels/GC_Parcels/MapServer/0',
     
         simplifyFactor: 0.35,
         precision: 5,
         fields: ['OBJECTID_1','Property_Type','LOCATION_ADDR','YEAR_BUILT','Lot_Size','REID'],
-      
-        style: function (feature) {
-          if(feature.properties.Property_Type == 'RESIDENTIAL'
-             /*|feature.properties.Property_Type == 'TOWNHOUSE'|feature.properties.Property_Type == 'APART'|feature.properties.Property_Type == 'IND'|feature.properties.Property_Type == 'CONDO'|feature.properties.Property_Type =="MULTI-FAMILY<4"*/ ){
+    
+        style: function (feature) {  /* Filtering styles */
+          if(feature.properties.Property_Type == 'RESIDENTIAL'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};
           }
-         /* else if (feature.properties.Property_Type == 'TOWNHOUSE'){
+          if (feature.properties.Property_Type == 'TOWNHOUSE'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type == 'APART'){
+          if (feature.properties.Property_Type == 'APART'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type == 'IND'){
+          if (feature.properties.Property_Type == 'IND'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type == 'CONDO'){
+          if (feature.properties.Property_Type == 'CONDO'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};    
-          }*/
-          
-          else if (feature.properties.Property_Type == 'GOV OWNED'){
+          }
+          if (feature.properties.Property_Type == 'GOV OWNED'){
           return {fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type == 'INSTITUTIONAL'){
+          if (feature.properties.Property_Type == 'INSTITUTIONAL'){
           return {fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.Property_Type == 'VACANT'){
+          if (feature.properties.Property_Type == 'VACANT'){
           return {fillColor:'#FF0000',fill:true,fillOpacity :0.8};    
           }
-           else{
+          else if{feature.properties.Property_Type == ''
             return {fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
            }
         },
       
       minZoom :15,
-      maxZoom: 30
+      maxZoom: 25
       
        }).addTo(mymap);
        
@@ -292,23 +320,23 @@
                console.log(Object.keys(layer.feature.properties));
                total_area = total_area + layer.feature.properties.Lot_Size;
                
-               if(layer.feature.properties.Property_Type == "RESIDENTIAL" /*| layer.feature.properties.Property_Type == "TOWNHOUSE"|layer.feature.properties.Property_Type == "CONDO"|layer.feature.properties.Property_Type == "IND"|layer.feature.properties.Property_Type =="MULTI-FAMILY<4"||layer.feature.properties.Property_Type =="APART"*/)
+               if(layer.feature.properties.Property_Type == "RESIDENTIAL" | layer.feature.properties.Property_Type == "TOWNHOUSE"|layer.feature.properties.Property_Type == "CONDO"|layer.feature.properties.Property_Type == "IND"|layer.feature.properties.Property_Type =="MULTI-FAMILY<4"||layer.feature.properties.Property_Type =="APART")
                    {
                       res_area = res_area+ layer.feature.properties.Lot_Size;
                        console.log("res",res_area)
                    }
-              else if (layer.feature.properties.Property_Type =="GOV OWNED")
+               if (layer.feature.properties.Property_Type =="GOV OWNED")
                    {
                       gov_area = gov_area+ layer.feature.properties.Lot_Size;
                        console.log("gov",gov_area)
                    }
                
-               else if (layer.feature.properties.Property_Type =="INSTITUTIONAL")
+                if (layer.feature.properties.Property_Type =="INSTITUTIONAL")
                    {
                       ins_area = ins_area+ layer.feature.properties.Lot_Size;
                        console.log("insti",ins_area)
                    }
-              else if (layer.feature.properties.Property_Type =="VACANT")
+              if (layer.feature.properties.Property_Type =="VACANT")
                    {
                       vac_area = vac_area+ layer.feature.properties.Lot_Size;
                        console.log("vacant",vac_area)

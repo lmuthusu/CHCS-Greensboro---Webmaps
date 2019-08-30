@@ -252,12 +252,17 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
             
   /*Adding ESRI Feature layer from County website*/     
   var location_address = L.esri.featureLayer({
-    url: 'http://gis.guilfordcountync.gov/arcgis/rest/services/Cadastral/GC_Cadastral/MapServer/0',
+ url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Cadastral/GC_Cadastral/MapServer/0',
     simplifyFactor: 0.35,
     precision: 5,
-    fields: [ 'REID','OBJECTID','LAND_CLASS','SITUS_ADDRESS','YEAR_BUILT','CALCULATED_ACREAGE'],
+    fields: [ 'REID','OBJECTID','LAND_CLASS','CALCULATED_ACREAGE','YEAR_BUILT','SITUS_ADDRESS'],
       
-      style: function (feature) {  /* Filtering styles */
+      ignoreRenderer : false,
+      maxZoom: 20
+          
+       });
+       
+    location_address.setStyle(function (feature) {  /* Filtering styles */
           if (feature.properties.LAND_CLASS ==='RESIDENTIAL'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};
           }
@@ -282,26 +287,22 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
           else if (feature.properties.LAND_CLASS === 'VACANT'){
           return {fillColor:'#FF0000',fill:true,fillOpacity :0.8};    
           }
-          else if (feature.properties.LAND_CLASS === 'COMM'){
+          else if (feature.properties.LAND_CLASS ==='COMM'){
           return {fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
            }
-            else {
+          else {
                 return{fillColor:'#340000',fill:true,fillOpacity :0.8};
             
-        }
-        },
-      
-      minZoom :15,
-      maxZoom: 30
-      
-       });
+          }
+    });
        
        
     mymap.on('zoom move', function() {
-    if ( mymap.getZoom() > 15){
+    if ( mymap.getZoom() > 16){
         mymap.addLayer(location_address);  
     }
-    });
+       
+    }); 
        
     var pane = document.getElementById('selectedFeatures');
     var res = document.getElementById('residential');
@@ -310,8 +311,9 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
     var others = document.getElementById('oth');
         
        
-    mymap.on('zoom move',iterateFeatures);
-    location_address.on('load', iterateFeatures);
+    mymap.on('zoom move load',iterateFeatures);
+    location_address.on('zoom',iterateFeatures);
+    
    
     
     function iterateFeatures () {
@@ -323,40 +325,39 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
            gov_area = 0;
            other_area = 0;
            location_address.eachActiveFeature(function(layer) {
-               console.log(total_area);
+               
+               
                //var attrs = Object.keys(layer.feature.properties)
-               console.log(Object.keys(layer.feature.properties));
+            
                total_area = total_area + layer.feature.properties.CALCULATED_ACREAGE;
                
                if(layer.feature.properties.LAND_CLASS == "RESIDENTIAL" | layer.feature.properties.LAND_CLASS == "TOWNHOUSE"|layer.feature.properties.LAND_CLASS == "CONDO"|layer.feature.properties.LAND_CLASS == "IND"|layer.feature.properties.LAND_CLASS =="MULTI-FAMILY<4"||layer.feature.properties.LAND_CLASS =="APART")
                    {
                       res_area = res_area+ layer.feature.properties.CALCULATED_ACREAGE;
-                       console.log("res",res_area)
+                       
                    }
                if (layer.feature.properties.LAND_CLASS =="GOV OWNED")
                    {
                       gov_area = gov_area+ layer.feature.properties.CALCULATED_ACREAGE;
-                       console.log("gov",gov_area)
+                     
                    }
                
                 if (layer.feature.properties.LAND_CLASS =="INSTITUTIONAL")
                    {
                       ins_area = ins_area+ layer.feature.properties.CALCULATED_ACREAGE;
-                       console.log("insti",ins_area)
+                      
                    }
               if (layer.feature.properties.LAND_CLASS =="VACANT")
                    {
                       vac_area = vac_area+ layer.feature.properties.CALCULATED_ACREAGE;
-                       console.log("vacant",vac_area)
+                      
                    }
                else
                    {
                       other_area = other_area + layer.feature.properties.CALCULATED_ACREAGE;
-                       console.log("others",other_area)
+                      
                    }
                
-                console.log(total_area);
-
 
               return total_area;  
                
@@ -375,12 +376,17 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
    location_address.bindPopup(function(evt) {
             return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {SITUS_ADDRESS} and is built in the year {YEAR_BUILT} with id {OBJECTID}', evt.feature.properties);
        });
+       
+    
 
    var Propertytype = document.getElementById('proptype');
        
     Propertytype.addEventListener('change', function (){
+    
     location_address.setWhere(Propertytype.value);
+   
   });
+       
 
        
     var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();

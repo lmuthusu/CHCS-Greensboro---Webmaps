@@ -4,9 +4,10 @@
     
     <title>Webmap 201</title>
       <meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
        <!-- Adding reference to CSS folder -->
     <link rel="stylesheet" href="src/leaflet/leaflet.css">
+
     <!-- Adding reference to Bootstrap folder -->
     <link rel="stylesheet" href="src/css/bootstrap-grid.css">
     <link rel ="stylesheet"href="src/Leaflet.NavBar-master/Leaflet.NavBar.css">
@@ -21,6 +22,8 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
     <script src="js/Leaflet.NavBar.js"></script>
     <script src ="src/leaflet-search-master/src/leaflet-search.js"></script>
+    
+
     
  <!-- Load Esri Leaflet from CDN -->
   <script src="https://unpkg.com/esri-leaflet@2.3.0/dist/esri-leaflet.js"
@@ -97,29 +100,7 @@
 }
   
 
-#query {
-    position: fixed;
-    bottom: 420px;
-    right: 10px;
-    z-index: 1000;
-    background: #0f2044;
-    width: 300px;
-    padding: 1em;
-    color: aliceblue;
-    opacity: 0.8;
-  }
 
-  #query select {
-    font-size: 16px;
-    color:#0f2044;
-    z-index: 1000;
-    background: #0f2044;
-    width: auto;
-    padding: 1em;
-    color: aliceblue;
-    opacity: 0.8;
-    
-  }
         
         
 
@@ -143,7 +124,7 @@
 <body>
 
 <!-- Load Esri Leaflet Renderers plugin to use feature service symbology -->
-<!--<script src="https://unpkg.com/esri-leaflet-renderers@2.0.6"></script> -->
+
  <!-- <div id="side-bar" class="col-md-3"></div>
  <!--defining sidebar id "side-bar" --> 
       
@@ -164,14 +145,38 @@
    <div id ="mapdiv"class="col-md-12"></div> 
    
 <!-- Leaflet Bar -->
-   
+    <style>
+#query {
+    position: fixed;
+    bottom: 420px;
+    right: 10px;
+    z-index: 1000;
+    background: #0f2044;
+    width: 300px;
+    padding: 1em;
+    color: aliceblue;
+    opacity: 0.8;
+  }
+
+  #query select {
+    font-size: 16px;
+    color:#0f2044;
+    z-index: 1000;
+    background: #0f2044;
+    width: auto;
+    padding: 1em;
+    color: aliceblue;
+    opacity: 0.8;
+    
+  }
+</style>
 <div id="query" class="leaflet-bar">
   <label>
    
     Land Type:
     <select id="proptype">
     <!-- make sure to encase string values in single quotes for valid sql -->
-        <option value="1=1">Any</option>
+        <option value="1=1">CHOOSE</option>
         <option value="LAND_CLASS='RESIDENTIAL'">RESIDENTIAL</option>
         <option value="LAND_CLASS='TOWNHOUSE'">TOWNHOUSE</option>
         <option value="LAND_CLASS='APART'">APARTMENT</option>
@@ -228,7 +233,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
     });
        
        
-       
+     
     /* Declare variable tot_area*/
        var total_area;
        
@@ -251,55 +256,62 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
 
             
   /*Adding ESRI Feature layer from County website*/     
-  var location_address = L.esri.featureLayer({
- url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Cadastral/GC_Cadastral/MapServer/0',
-    simplifyFactor: 0.35,
-    precision: 5,
-    fields: [ 'REID','OBJECTID','LAND_CLASS','CALCULATED_ACREAGE','YEAR_BUILT','SITUS_ADDRESS'],
+    var location_address = L.esri.featureLayer({
+        url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Cadastral/GC_Cadastral/MapServer/0',
+         fields : ['REID','OBJECTID','LAND_CLASS','SITUS_ADDRESS','CALCULATED_ACREAGE','YEAR_BUILT'],
+         simplifyFactor: 0.5,
+         precision : 5,
+         cacheLayers :true,
+         useCors:true,
+        isModern:false
       
-      ignoreRenderer : false,
-      maxZoom: 20
-          
+
        });
        
     location_address.setStyle(function (feature) {  /* Filtering styles */
-          if (feature.properties.LAND_CLASS ==='RESIDENTIAL'){
+         if (feature.properties.LAND_CLASS ==='RESIDENTIAL'){
           return {fillColor:'#226666',fill:true,fillOpacity :0.3};
           }
-          else if (feature.properties.LAND_CLASS === 'TOWNHOUSE'){
-          return {fillColor:'#226667',fill:true,fillOpacity :0.3};    
+          if (feature.properties.LAND_CLASS === 'TOWNHOUSE'){
+          return {fillColor:'#226667',fill:true,fillOpacity :0.3};   
           }
-          else if (feature.properties.LAND_CLASS ==='APART'){
-          return {fillColor:'#226668',fill:true,fillOpacity :0.3};    
+          if (feature.properties.LAND_CLASS ==='APART'){
+          return {fillColor:'#226668',fill:true,fillOpacity :0.3};   
           }
-          else if (feature.properties.LAND_CLASS === 'IND'){
-          return {fillColor:'#226669',fill:true,fillOpacity :0.3};    
+          if (feature.properties.LAND_CLASS === 'IND'){
+          return {fillColor:'#226669',fill:true,fillOpacity :0.3};   
           }
-          else if (feature.properties.LAND_CLASS === 'CONDO'){
-          return {fillColor:'#226670',fill:true,fillOpacity :0.3};    
+          if (feature.properties.LAND_CLASS === 'CONDO'){
+          return {fillColor:'#226670',fill:true,fillOpacity :0.3};   
           }
-          else if (feature.properties.LAND_CLASS === 'GOV OWNED'){
+          if (feature.properties.LAND_CLASS === 'GOV OWNED'){
           return {fillColor:'#AA3939',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.LAND_CLASS === 'INSTITUTIONAL'){
+          if (feature.properties.LAND_CLASS === 'INSTITUTIONAL'){
           return {fillColor:'#C5EE56',fill:true,fillOpacity :0.3};    
           }
-          else if (feature.properties.LAND_CLASS === 'VACANT'){
-          return {fillColor:'#FF0000',fill:true,fillOpacity :0.8};    
+          if (feature.properties.LAND_CLASS === 'VACANT'){
+          return {fillColor:'#FF0000',fill:true,fillOpacity :0.8};   
           }
-          else if (feature.properties.LAND_CLASS ==='COMM'){
+          if (feature.properties.LAND_CLASS ==='COMM'){
           return {fillColor:'#AA7A39',fill:true,fillOpacity :0.3};
            }
           else {
                 return{fillColor:'#340000',fill:true,fillOpacity :0.8};
             
           }
-    });
+    }); 
        
        
-    mymap.on('zoom move', function() {
-    if ( mymap.getZoom() > 16){
+  mymap.on('zoom move', function() {
+    if ( mymap.getZoom() < 17){
+        mymap.removeLayer(location_address);
+       /* mymap.dragging.enable();*/
+    }
+        else{
+                 
         mymap.addLayer(location_address);  
+        /* mymap.dragging.disable(); */
     }
        
     }); 
@@ -309,10 +321,11 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
     var govt = document.getElementById('gov');
     var vact = document.getElementById('vac');
     var others = document.getElementById('oth');
-        
+ 
+    
        
-    mymap.on('zoom move load',iterateFeatures);
-    location_address.on('zoom',iterateFeatures);
+    mymap.on('zoom move',iterateFeatures);
+    location_address.on('zoom load',iterateFeatures);
     
    
     
@@ -331,23 +344,23 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
             
                total_area = total_area + layer.feature.properties.CALCULATED_ACREAGE;
                
-               if(layer.feature.properties.LAND_CLASS == "RESIDENTIAL" | layer.feature.properties.LAND_CLASS == "TOWNHOUSE"|layer.feature.properties.LAND_CLASS == "CONDO"|layer.feature.properties.LAND_CLASS == "IND"|layer.feature.properties.LAND_CLASS =="MULTI-FAMILY<4"||layer.feature.properties.LAND_CLASS =="APART")
+               if(layer.feature.properties.LAND_CLASS == "RESIDENTIAL" | layer.feature.properties.LAND_CLASS == "TOWNHOUSE"|layer.feature.properties.LAND_CLASS == "CONDO"|layer.feature.properties.LAND_CLASS == "IND"| layer.feature.properties.LAND_CLASS =="MULTI-FAMILY<4"|layer.feature.properties.LAND_CLASS =="APART")
                    {
                       res_area = res_area+ layer.feature.properties.CALCULATED_ACREAGE;
                        
                    }
-               if (layer.feature.properties.LAND_CLASS =="GOV OWNED")
+               else if (layer.feature.properties.LAND_CLASS =="GOV OWNED")
                    {
                       gov_area = gov_area+ layer.feature.properties.CALCULATED_ACREAGE;
                      
                    }
                
-                if (layer.feature.properties.LAND_CLASS =="INSTITUTIONAL")
+                else if (layer.feature.properties.LAND_CLASS =="INSTITUTIONAL")
                    {
                       ins_area = ins_area+ layer.feature.properties.CALCULATED_ACREAGE;
                       
                    }
-              if (layer.feature.properties.LAND_CLASS =="VACANT")
+              else if (layer.feature.properties.LAND_CLASS =="VACANT")
                    {
                       vac_area = vac_area+ layer.feature.properties.CALCULATED_ACREAGE;
                       
@@ -356,7 +369,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
                    {
                       other_area = other_area + layer.feature.properties.CALCULATED_ACREAGE;
                       
-                   }
+                   };
                
 
               return total_area;  
@@ -379,13 +392,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
        
     
 
-   var Propertytype = document.getElementById('proptype');
-       
-    Propertytype.addEventListener('change', function (){
-    
-    location_address.setWhere(Propertytype.value);
-   
-  });
+
        
 
        
@@ -397,9 +404,9 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
       arcgisOnline,
       L.esri.Geocoding.featureLayerProvider({
            url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
-          searchFields: ['StreetName'],
+          searchFields: ['StreetName1'],
             bufferRadius: 15000,
-          zoomToResult: 17,
+          zoomToResult: 18,
         formatSuggestion: function(feature){
           return feature.properties.StreetName;
         }
@@ -408,7 +415,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
   }).addTo(mymap); 
         
        
-  /*var highways =L.esri.featureLayer({
+ /* var highways =L.esri.featureLayer({
         url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
         simplifyFactor: 0.05,
         minZoom :10,
@@ -420,7 +427,11 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
 
     //searchLayer is a L.LayerGroup contains searched markers
     
+      var Propertytype = document.getElementById('proptype');
        
+      Propertytype.addEventListener('change', function () {
+          location_address.setWhere(Propertytype.value);
+        });    
     </script>
     
  

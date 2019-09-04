@@ -404,7 +404,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
       arcgisOnline,
       L.esri.Geocoding.featureLayerProvider({
            url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
-          searchFields: ['StreetName1'],
+          searchFields: ['StreetName'],
             bufferRadius: 15000,
           zoomToResult: 18,
         formatSuggestion: function(feature){

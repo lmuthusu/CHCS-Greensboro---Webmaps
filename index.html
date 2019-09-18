@@ -224,12 +224,19 @@ var stamen =      L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-l
 es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; '+mapLink+', '+wholink});
        
        
+       
+    // create the tile layer with correct attribution
+	var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+	var osm = new L.TileLayer(osmUrl)
+       
+       
      
     /*Declare Map div*/
     var mymap = L.map('mapdiv',{ 
         center :[36.08 , -79.79],
         zoom : 13,
-        layers : [stamen, es_w]
+        layers : [stamen, es_w, osm]
     });
        
        
@@ -242,8 +249,9 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
     /*Declare basemaps to be stamen and ESRI*/
        var baseMaps = {
            "Stamen toner": stamen,
-           "ESRI World": es_w
-            };
+           "ESRI World": es_w,
+           "OSM": osm
+       };
    /* Add the layers to mymap */
        var cont = L.control.layers(baseMaps).addTo(mymap);
 

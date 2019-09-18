@@ -182,7 +182,7 @@
         <option value="LAND_CLASS='APART'">APARTMENT</option>
         <option value="LAND_CLASS='IND'">INDIVIDUAL PROPERTY</option>
         <option value="LAND_CLASS='CONDO'">CONDOMINIUM</option>
-        <option value="LAND_CLASS='MULTI-FAMILY<4'">MULTI FAMILY</option>
+        <option value="LAND_CLASS='MULTI-FAMILY<4'">MULTI-FAMILY</option>
         <option value="LAND_CLASS='GOV OWNED'">GOVT OWNED</option>
         <option value="LAND_CLASS='VACANT'">VACANT</option> 
         <option value="LAND_CLASS='INSTITUTIONAL'">INSTITUTIONAL</option>
@@ -312,7 +312,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
        
        
   mymap.on('zoom move', function() {
-    if ( mymap.getZoom() < 17){
+    if ( mymap.getZoom() < 16){
         mymap.removeLayer(location_address);
        /* mymap.dragging.enable();*/
     }
@@ -333,7 +333,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
     
        
     mymap.on('zoom move',iterateFeatures);
-    location_address.on('zoom load',iterateFeatures);
+    location_address.on('zoom',iterateFeatures);
     
    
     
@@ -395,7 +395,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
 }     
        
    location_address.bindPopup(function(evt) {
-            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {SITUS_ADDRESS} and is built in the year {YEAR_BUILT} with id {OBJECTID}', evt.feature.properties);
+            return L.Util.template('<h3>{LAND_CLASS}</h3><hr /><p>This property is located at {SITUS_ADDRESS} and is built in the year {YEAR_BUILT} and reference object id in parcel is {OBJECTID}', evt.feature.properties);
        });
        
     
@@ -414,7 +414,7 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
            url:"http://gis.guilfordcountync.gov/arcgis/rest/services/Geocode_Services/GCStrt_Geocode/GeocodeServer/",
           searchFields: ['StreetName'],
             bufferRadius: 15000,
-          zoomToResult: 18,
+          zoomToResult: 20,
         formatSuggestion: function(feature){
           return feature.properties.StreetName;
         }
@@ -423,16 +423,23 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
   }).addTo(mymap); 
         
        
- /* var highways =L.esri.featureLayer({
+  var highways =L.esri.featureLayer({
         url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/10',
         simplifyFactor: 0.05,
-        minZoom :10,
-        maxZoom: 13,
 
-    }).addTo(mymap); */      
+    }).addTo(mymap);     
 
+       var hospitals =L.esri.featureLayer({ 
+           url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/21',
+        simplifyFactor: 0.05,
+
+    }).addTo(mymap);
        
+       /* var schools =L.esri.featureLayer({ 
+           url:'http://gis.guilfordcountync.gov/arcgis/rest/services/Basemaps/All_Map_Layers/MapServer/22',
+        simplifyFactor: 0.05,
 
+    }).addTo(mymap);*/
     //searchLayer is a L.LayerGroup contains searched markers
     
       var Propertytype = document.getElementById('proptype');
@@ -441,6 +448,8 @@ es_w = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Im
           location_address.setWhere(Propertytype.value);
         });    
     </script>
+    
+    
     
  
     

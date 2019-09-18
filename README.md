@@ -30,7 +30,7 @@ TO choose and filter to a specific land class type, Choose the "Land Type"
         "LAND_CLASS='MULTI-FAMILY<4'">MULTI-FAMILY
         "LAND_CLASS='GOV OWNED'">GOVT OWNED>
         "LAND_CLASS='VACANT'">VACANT 
-        "LAND_CLASS='INSTITUTIONAL'"
+        "LAND_CLASS='INSTITUTIONAL'">INSTITUTIONAL
         "LAND_CLASS='COMM'">COMMERCIAL
         
 
